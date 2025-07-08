@@ -334,7 +334,7 @@ const RorstodCalculator = () => {
                       onChange={(e) => setCalculationMethod(e.target.value)}
                       className="mr-2"
                     />
-                    <span className="text-sm">Ange innerdiameter direkt</span>
+                    <span className="text-sm">Innerdiameter</span>
                   </label>
                   <label className="flex items-center">
                     <input
@@ -345,7 +345,7 @@ const RorstodCalculator = () => {
                       onChange={(e) => setCalculationMethod(e.target.value)}
                       className="mr-2"
                     />
-                    <span className="text-sm">Beräkna från ytterdiameter + SDR</span>
+                    <span className="text-sm">Ytterdiameter + SDR</span>
                   </label>
                   <label className="flex items-center">
                     <input
@@ -356,7 +356,7 @@ const RorstodCalculator = () => {
                       onChange={(e) => setCalculationMethod(e.target.value)}
                       className="mr-2"
                     />
-                    <span className="text-sm">Beräkna från ytterdiameter + godstjocklek</span>
+                    <span className="text-sm">Ytterdiameter + godstjocklek</span>
                   </label>
                 </div>
               </div>
@@ -405,7 +405,7 @@ const RorstodCalculator = () => {
                       value={inputs.sdr}
                       onChange={(e) => handleInputChange('sdr', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Ange SDR-värde"
+                      placeholder="Ange SDR-klass"
                     />
                   </div>
                 </div>
@@ -490,7 +490,7 @@ const RorstodCalculator = () => {
                       onChange={(e) => setQuantityMethod(e.target.value)}
                       className="mr-2"
                     />
-                    <span className="text-sm">Ange antal ringar direkt</span>
+                    <span className="text-sm">Antal ringar</span>
                   </label>
                   <label className="flex items-center">
                     <input
@@ -501,7 +501,7 @@ const RorstodCalculator = () => {
                       onChange={(e) => setQuantityMethod(e.target.value)}
                       className="mr-2"
                     />
-                    <span className="text-sm">Beräkna från längd + CC-mått</span>
+                    <span className="text-sm">Längd + CC-mått</span>
                   </label>
                 </div>
               </div>
