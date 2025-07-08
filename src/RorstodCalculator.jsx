@@ -182,7 +182,7 @@ const RorstodCalculator = () => {
     }
 
     if (innerrorYd >= ytterrorInnerDiam) {
-      newErrors.innerrorYtterDiameter = 'Innerrörets diameter måste vara mindre än ytterrörets innerdiameter';
+      newErrors.innerrorYtterDiameter = 'Mediarörets diameter måste vara mindre än skyddsrörets innerdiameter';
     }
 
     // Validera antal input
@@ -198,7 +198,7 @@ const RorstodCalculator = () => {
       return;
     }
 
-    // Hitta rätt rörstöd baserat på innerrörets ytterdiameter
+    // Hitta rätt rörstöd baserat på Mediarörets ytterdiameter
     const matchingRorstod = rorstodData.filter(item => 
       innerrorYd >= item.minYd && innerrorYd <= item.maxYd
     );
@@ -297,9 +297,9 @@ const RorstodCalculator = () => {
         <div className="space-y-4">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Projektdata</h2>
           
-          {/* Ytterrör */}
+          {/* Skyddsrör */}
           <div className="p-4 bg-blue-50 rounded-lg">
-            <h3 className="font-medium text-blue-900 mb-3">Ytterrör</h3>
+            <h3 className="font-medium text-blue-900 mb-3">Skyddsrör</h3>
             <div className="space-y-3">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -356,9 +356,9 @@ const RorstodCalculator = () => {
             </div>
           </div>
 
-          {/* Innerrör */}
+          {/* Mediarör */}
           <div className="p-4 bg-green-50 rounded-lg">
-            <h3 className="font-medium text-green-900 mb-3">Innerrör</h3>
+            <h3 className="font-medium text-green-900 mb-3">Mediarör</h3>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Ytterdiameter (mm)
