@@ -14,9 +14,11 @@ const RorstodCalculator = () => {
   });
 
   const [calculationMethod, setCalculationMethod] = useState('direct'); // 'direct', 'sdr', 'godstjocklek'
+  const [quantityMethod, setQuantityMethod] = useState('rings'); // 'rings', 'length'
   const [results, setResults] = useState(null);
   const [errors, setErrors] = useState({});
   const [copiedResult, setCopiedResult] = useState(null);
+  const [expandedResults, setExpandedResults] = useState({});
 
   // Data från blad 2 - rörstöd kategorier och dimensioner
   const rorstodData = [
@@ -194,11 +196,15 @@ const RorstodCalculator = () => {
     }
 
     // Validera antal input
-    const hasAntalRingar = inputs.antalRingar && parseFloat(inputs.antalRingar) > 0;
-    const hasLangdAndCC = inputs.langd && parseFloat(inputs.langd) > 0 && inputs.ccMatt && parseFloat(inputs.ccMatt) > 0;
+    const hasAntalRingar = quantityMethod === 'rings' && inputs.antalRingar && parseFloat(inputs.antalRingar) > 0;
+    const hasLangdAndCC = quantityMethod === 'length' && inputs.langd && parseFloat(inputs.langd) > 0 && inputs.ccMatt && parseFloat(inputs.ccMatt) > 0;
     
     if (!hasAntalRingar && !hasLangdAndCC) {
-      newErrors.antal = 'Ange antingen antal ringar eller längd + CC-mått';
+      if (quantityMethod === 'rings') {
+        newErrors.antalRingar = 'Ange antal ringar';
+      } else {
+        newErrors.antal = 'Ange längd och CC-mått';
+      }
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -270,16 +276,13 @@ const RorstodCalculator = () => {
     return sortedProducts[0];
   };
 
-  const copyResultToClipboard = async (result) => {
-    const optimalProduct = findOptimalHeight(result.products, result.maxHojd);
-    if (!optimalProduct) return;
-
+  const copyProductToClipboard = async (product, antalRorstod) => {
     // Skapa tabbseparerad data: RSK-nummer [TAB] Antal rörstöd
-    const clipboardText = `${optimalProduct.rskNr}\t${result.antalRorstod}`;
+    const clipboardText = `${product.rskNr}\t${antalRorstod}`;
     
     try {
       await navigator.clipboard.writeText(clipboardText);
-      setCopiedResult(result.kategori + result.antalSegment); // Unique identifier
+      setCopiedResult(product.rskNr); // Unique identifier per produkt
       
       // Återställ kopierad-status efter 2 sekunder
       setTimeout(() => {
@@ -288,6 +291,13 @@ const RorstodCalculator = () => {
     } catch (err) {
       console.error('Kunde inte kopiera till clipboard:', err);
     }
+  };
+
+  const toggleExpanded = (resultKey) => {
+    setExpandedResults(prev => ({
+      ...prev,
+      [resultKey]: !prev[resultKey]
+    }));
   };
 
   return (
@@ -324,7 +334,7 @@ const RorstodCalculator = () => {
                       onChange={(e) => setCalculationMethod(e.target.value)}
                       className="mr-2"
                     />
-                    <span className="text-sm">Innerdiameter</span>
+                    <span className="text-sm">Ange innerdiameter direkt</span>
                   </label>
                   <label className="flex items-center">
                     <input
@@ -335,7 +345,7 @@ const RorstodCalculator = () => {
                       onChange={(e) => setCalculationMethod(e.target.value)}
                       className="mr-2"
                     />
-                    <span className="text-sm">Ytterdiameter & SDR</span>
+                    <span className="text-sm">Beräkna från ytterdiameter + SDR</span>
                   </label>
                   <label className="flex items-center">
                     <input
@@ -346,7 +356,7 @@ const RorstodCalculator = () => {
                       onChange={(e) => setCalculationMethod(e.target.value)}
                       className="mr-2"
                     />
-                    <span className="text-sm">Ytterdiameter & godstjocklek</span>
+                    <span className="text-sm">Beräkna från ytterdiameter + godstjocklek</span>
                   </label>
                 </div>
               </div>
@@ -417,7 +427,7 @@ const RorstodCalculator = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Godstjocklek (t)
+                      Godstjocklek (mm)
                     </label>
                     <input
                       type="number"
@@ -465,49 +475,89 @@ const RorstodCalculator = () => {
           <div className="p-4 bg-orange-50 rounded-lg">
             <h3 className="font-medium text-orange-900 mb-3">Antal rörstöd</h3>
             <div className="space-y-3">
+              {/* Beräkningsmetod för antal */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Antal ringar
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Välj beräkningsmetod
                 </label>
-                <input
-                  type="number"
-                  value={inputs.antalRingar}
-                  onChange={(e) => handleInputChange('antalRingar', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  placeholder="Ange antal ringar"
-                />
+                <div className="space-y-2">
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="quantityMethod"
+                      value="rings"
+                      checked={quantityMethod === 'rings'}
+                      onChange={(e) => setQuantityMethod(e.target.value)}
+                      className="mr-2"
+                    />
+                    <span className="text-sm">Ange antal ringar direkt</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="quantityMethod"
+                      value="length"
+                      checked={quantityMethod === 'length'}
+                      onChange={(e) => setQuantityMethod(e.target.value)}
+                      className="mr-2"
+                    />
+                    <span className="text-sm">Beräkna från längd + CC-mått</span>
+                  </label>
+                </div>
               </div>
-              
-              <div className="text-sm text-gray-600 text-center">eller</div>
-              
-              <div className="grid grid-cols-2 gap-2">
+
+              {/* Fält baserat på vald metod */}
+              {quantityMethod === 'rings' && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Längd (m)
+                    Antal ringar
                   </label>
                   <input
                     type="number"
-                    value={inputs.langd}
-                    onChange={(e) => handleInputChange('langd', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    placeholder="Längd i meter"
+                    value={inputs.antalRingar}
+                    onChange={(e) => handleInputChange('antalRingar', e.target.value)}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ${
+                      errors.antalRingar ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Ange antal ringar"
                   />
+                  {errors.antalRingar && (
+                    <p className="text-red-500 text-sm mt-1">{errors.antalRingar}</p>
+                  )}
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    CC-mått (m)
-                  </label>
-                  <input
-                    type="number"
-                    value={inputs.ccMatt}
-                    onChange={(e) => handleInputChange('ccMatt', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    placeholder="2"
-                  />
+              )}
+
+              {quantityMethod === 'length' && (
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Längd (m)
+                    </label>
+                    <input
+                      type="number"
+                      value={inputs.langd}
+                      onChange={(e) => handleInputChange('langd', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      placeholder="Längd i meter"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      CC-mått (m)
+                    </label>
+                    <input
+                      type="number"
+                      value={inputs.ccMatt}
+                      onChange={(e) => handleInputChange('ccMatt', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      placeholder="2"
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
               
-              {inputs.langd && inputs.ccMatt && (
+              {/* Visa beräknat antal ringar */}
+              {quantityMethod === 'length' && inputs.langd && inputs.ccMatt && (
                 <div className="text-sm text-orange-600 bg-orange-100 p-2 rounded">
                   Beräknade ringar: {Math.floor(parseFloat(inputs.langd || 0) / parseFloat(inputs.ccMatt || 1)) + 1}
                 </div>
@@ -550,6 +600,9 @@ const RorstodCalculator = () => {
             <div className="space-y-4">
               {results.map((result, index) => {
                 const optimalProduct = findOptimalHeight(result.products, result.maxHojd);
+                const resultKey = `${result.kategori}-${result.antalSegment}`;
+                const isExpanded = expandedResults[resultKey];
+                const productsToShow = isExpanded ? result.products : result.products.slice(0, 3);
                 
                 return (
                   <div key={index} className={`p-4 rounded-lg border-2 ${
@@ -567,26 +620,6 @@ const RorstodCalculator = () => {
                           {result.antalSegment} segment/ring
                         </span>
                       </div>
-                      
-                      {result.products.length > 0 && (
-                        <button
-                          onClick={() => copyResultToClipboard(result)}
-                          className="flex items-center gap-1 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm"
-                          title="Kopiera RSK-nummer och antal till clipboard"
-                        >
-                          {copiedResult === (result.kategori + result.antalSegment) ? (
-                            <>
-                              <Check className="w-4 h-4" />
-                              Kopierat!
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="w-4 h-4" />
-                              Kopiera
-                            </>
-                          )}
-                        </button>
-                      )}
                     </div>
 
                     <div className="grid grid-cols-2 gap-4 mb-3">
@@ -611,7 +644,7 @@ const RorstodCalculator = () => {
                         <p className="text-red-600 text-sm">Inga produkter fungerar med denna klackhöjd</p>
                       ) : (
                         <div className="space-y-2">
-                          {result.products.slice(0, 3).map((product, pIndex) => (
+                          {productsToShow.map((product, pIndex) => (
                             <div key={pIndex} className={`p-2 rounded border flex items-center justify-between ${
                               product === optimalProduct ? 'bg-yellow-50 border-yellow-300' : 'bg-white border-gray-200'
                             }`}>
@@ -619,17 +652,39 @@ const RorstodCalculator = () => {
                                 <p className="font-medium text-sm">RSK: {product.rskNr}</p>
                                 <p className="text-xs text-gray-600">{product.artNr}</p>
                               </div>
-                              <div className="text-right">
-                                <p className="font-medium text-sm">H: {product.hojd}mm</p>
-                                <p className="text-xs text-gray-600">B: {product.bredd}mm</p>
+                              <div className="flex items-center gap-2">
+                                <div className="text-right">
+                                  <p className="font-medium text-sm">H: {product.hojd}mm</p>
+                                  <p className="text-xs text-gray-600">B: {product.bredd}mm</p>
+                                </div>
                                 {product === optimalProduct && (
-                                  <Target className="w-4 h-4 text-yellow-600 ml-auto" title="Bäst centrering" />
+                                  <Target className="w-4 h-4 text-yellow-600" title="Bäst centrering" />
                                 )}
+                                <button
+                                  onClick={() => copyProductToClipboard(product, result.antalRorstod)}
+                                  className="p-1 hover:bg-gray-100 rounded transition-colors"
+                                  title="Kopiera RSK-nummer och antal"
+                                >
+                                  {copiedResult === product.rskNr ? (
+                                    <Check className="w-4 h-4 text-green-600" />
+                                  ) : (
+                                    <Copy className="w-4 h-4 text-gray-600" />
+                                  )}
+                                </button>
                               </div>
                             </div>
                           ))}
+                          
                           {result.products.length > 3 && (
-                            <p className="text-xs text-gray-500">+{result.products.length - 3} fler alternativ...</p>
+                            <button
+                              onClick={() => toggleExpanded(resultKey)}
+                              className="w-full text-sm text-blue-600 hover:text-blue-800 py-2 px-3 bg-blue-50 hover:bg-blue-100 rounded transition-colors"
+                            >
+                              {isExpanded 
+                                ? `- Visa färre alternativ` 
+                                : `+ ${result.products.length - 3} fler alternativ`
+                              }
+                            </button>
                           )}
                         </div>
                       )}
