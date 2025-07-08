@@ -324,7 +324,7 @@ const RorstodCalculator = () => {
                       onChange={(e) => setCalculationMethod(e.target.value)}
                       className="mr-2"
                     />
-                    <span className="text-sm">Ange innerdiameter direkt</span>
+                    <span className="text-sm">Innerdiameter</span>
                   </label>
                   <label className="flex items-center">
                     <input
