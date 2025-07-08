@@ -6,12 +6,14 @@ const RorstodCalculator = () => {
     ytterrorInnerDiameter: '',
     ytterrorYtterDiameter: '',
     sdr: '',
+    godstjocklek: '',
     innerrorYtterDiameter: '',
     ccMatt: '2',
     langd: '',
     antalRingar: ''
   });
 
+  const [calculationMethod, setCalculationMethod] = useState('direct'); // 'direct', 'sdr', 'godstjocklek'
   const [results, setResults] = useState(null);
   const [errors, setErrors] = useState({});
   const [copiedResult, setCopiedResult] = useState(null);
@@ -148,20 +150,26 @@ const RorstodCalculator = () => {
   };
 
   const calculateInnerDiameter = () => {
-    const { ytterrorYtterDiameter, sdr } = inputs;
-    if (!ytterrorYtterDiameter || !sdr) return null;
+    const { ytterrorYtterDiameter, sdr, godstjocklek } = inputs;
     
-    const ytterDiam = parseFloat(ytterrorYtterDiameter);
-    const sdrValue = parseFloat(sdr);
+    if (calculationMethod === 'sdr' && ytterrorYtterDiameter && sdr) {
+      const ytterDiam = parseFloat(ytterrorYtterDiameter);
+      const sdrValue = parseFloat(sdr);
+      const vaggtjocklek = ytterDiam / (2 * sdrValue);
+      return ytterDiam - (2 * vaggtjocklek);
+    }
     
-    const vaggtjocklek = ytterDiam / (2 * sdrValue);
-    const innerDiam = ytterDiam - (2 * vaggtjocklek);
+    if (calculationMethod === 'godstjocklek' && ytterrorYtterDiameter && godstjocklek) {
+      const ytterDiam = parseFloat(ytterrorYtterDiameter);
+      const tjocklek = parseFloat(godstjocklek);
+      return ytterDiam - (2 * tjocklek);
+    }
     
-    return innerDiam;
+    return null;
   };
 
   const getYtterrorInnerDiameter = () => {
-    if (inputs.ytterrorInnerDiameter) {
+    if (calculationMethod === 'direct' && inputs.ytterrorInnerDiameter) {
       return parseFloat(inputs.ytterrorInnerDiameter);
     }
     return calculateInnerDiameter();
@@ -301,54 +309,129 @@ const RorstodCalculator = () => {
           <div className="p-4 bg-blue-50 rounded-lg">
             <h3 className="font-medium text-blue-900 mb-3">Skyddsrör</h3>
             <div className="space-y-3">
+              {/* Beräkningsmetod */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Innerdiameter (mm)
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Välj beräkningsmetod
                 </label>
-                <input
-                  type="number"
-                  value={inputs.ytterrorInnerDiameter}
-                  onChange={(e) => handleInputChange('ytterrorInnerDiameter', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    errors.ytterrorInnerDiameter ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  placeholder="Ange innerdiameter"
-                />
-                {errors.ytterrorInnerDiameter && (
-                  <p className="text-red-500 text-sm mt-1">{errors.ytterrorInnerDiameter}</p>
-                )}
+                <div className="space-y-2">
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="calculationMethod"
+                      value="direct"
+                      checked={calculationMethod === 'direct'}
+                      onChange={(e) => setCalculationMethod(e.target.value)}
+                      className="mr-2"
+                    />
+                    <span className="text-sm">Ange innerdiameter direkt</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="calculationMethod"
+                      value="sdr"
+                      checked={calculationMethod === 'sdr'}
+                      onChange={(e) => setCalculationMethod(e.target.value)}
+                      className="mr-2"
+                    />
+                    <span className="text-sm">Beräkna från ytterdiameter + SDR</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="calculationMethod"
+                      value="godstjocklek"
+                      checked={calculationMethod === 'godstjocklek'}
+                      onChange={(e) => setCalculationMethod(e.target.value)}
+                      className="mr-2"
+                    />
+                    <span className="text-sm">Beräkna från ytterdiameter + godstjocklek</span>
+                  </label>
+                </div>
               </div>
-              
-              <div className="text-sm text-gray-600 text-center">eller</div>
-              
-              <div className="grid grid-cols-2 gap-2">
+
+              {/* Fält baserat på vald metod */}
+              {calculationMethod === 'direct' && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Ytterdiameter (mm)
+                    Innerdiameter (mm)
                   </label>
                   <input
                     type="number"
-                    value={inputs.ytterrorYtterDiameter}
-                    onChange={(e) => handleInputChange('ytterrorYtterDiameter', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Ytterdiameter"
+                    value={inputs.ytterrorInnerDiameter}
+                    onChange={(e) => handleInputChange('ytterrorInnerDiameter', e.target.value)}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      errors.ytterrorInnerDiameter ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Ange innerdiameter"
                   />
+                  {errors.ytterrorInnerDiameter && (
+                    <p className="text-red-500 text-sm mt-1">{errors.ytterrorInnerDiameter}</p>
+                  )}
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    SDR
-                  </label>
-                  <input
-                    type="number"
-                    value={inputs.sdr}
-                    onChange={(e) => handleInputChange('sdr', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="SDR"
-                  />
+              )}
+
+              {calculationMethod === 'sdr' && (
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Ytterdiameter (mm)
+                    </label>
+                    <input
+                      type="number"
+                      value={inputs.ytterrorYtterDiameter}
+                      onChange={(e) => handleInputChange('ytterrorYtterDiameter', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Ange ytterdiameter"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      SDR
+                    </label>
+                    <input
+                      type="number"
+                      value={inputs.sdr}
+                      onChange={(e) => handleInputChange('sdr', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Ange SDR-värde"
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
+
+              {calculationMethod === 'godstjocklek' && (
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Ytterdiameter (mm)
+                    </label>
+                    <input
+                      type="number"
+                      value={inputs.ytterrorYtterDiameter}
+                      onChange={(e) => handleInputChange('ytterrorYtterDiameter', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Ange ytterdiameter"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Godstjocklek (mm)
+                    </label>
+                    <input
+                      type="number"
+                      value={inputs.godstjocklek}
+                      onChange={(e) => handleInputChange('godstjocklek', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Ange godstjocklek"
+                    />
+                  </div>
+                </div>
+              )}
               
-              {inputs.ytterrorYtterDiameter && inputs.sdr && (
+              {/* Visa beräknad innerdiameter */}
+              {calculationMethod !== 'direct' && calculateInnerDiameter() && (
                 <div className="text-sm text-blue-600 bg-blue-100 p-2 rounded">
                   Beräknad innerdiameter: {calculateInnerDiameter()?.toFixed(1)} mm
                 </div>
