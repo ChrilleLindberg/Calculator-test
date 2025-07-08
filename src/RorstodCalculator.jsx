@@ -335,7 +335,7 @@ const RorstodCalculator = () => {
                       onChange={(e) => setCalculationMethod(e.target.value)}
                       className="mr-2"
                     />
-                    <span className="text-sm">Beräkna från ytterdiameter + SDR</span>
+                    <span className="text-sm">Ytterdiameter & SDR</span>
                   </label>
                   <label className="flex items-center">
                     <input
@@ -346,7 +346,7 @@ const RorstodCalculator = () => {
                       onChange={(e) => setCalculationMethod(e.target.value)}
                       className="mr-2"
                     />
-                    <span className="text-sm">Beräkna från ytterdiameter + godstjocklek</span>
+                    <span className="text-sm">Ytterdiameter & godstjocklek</span>
                   </label>
                 </div>
               </div>
@@ -417,7 +417,7 @@ const RorstodCalculator = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Godstjocklek (mm)
+                      Godstjocklek (t)
                     </label>
                     <input
                       type="number"
