@@ -315,6 +315,28 @@ const RorstodCalculator = () => {
         <div className="space-y-4">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Projektdata</h2>
           
+          {/* Mediarör */}
+          <div className="p-4 bg-green-50 rounded-lg">
+            <h3 className="font-medium text-green-900 mb-3">Mediarör</h3>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Ytterdiameter (mm)
+              </label>
+              <input
+                type="number"
+                value={inputs.innerrorYtterDiameter}
+                onChange={(e) => handleInputChange('innerrorYtterDiameter', e.target.value)}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 ${
+                  errors.innerrorYtterDiameter ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="Ange ytterdiameter"
+              />
+              {errors.innerrorYtterDiameter && (
+                <p className="text-red-500 text-sm mt-1">{errors.innerrorYtterDiameter}</p>
+              )}
+            </div>
+          </div>
+          
           {/* Skyddsrör */}
           <div className="p-4 bg-blue-50 rounded-lg">
             <h3 className="font-medium text-blue-900 mb-3">Skyddsrör</h3>
@@ -445,28 +467,6 @@ const RorstodCalculator = () => {
                 <div className="text-sm text-blue-600 bg-blue-100 p-2 rounded">
                   Beräknad innerdiameter: {calculateInnerDiameter()?.toFixed(1)} mm
                 </div>
-              )}
-            </div>
-          </div>
-
-          {/* Mediarör */}
-          <div className="p-4 bg-green-50 rounded-lg">
-            <h3 className="font-medium text-green-900 mb-3">Mediarör</h3>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Ytterdiameter (mm)
-              </label>
-              <input
-                type="number"
-                value={inputs.innerrorYtterDiameter}
-                onChange={(e) => handleInputChange('innerrorYtterDiameter', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 ${
-                  errors.innerrorYtterDiameter ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="Ange ytterdiameter"
-              />
-              {errors.innerrorYtterDiameter && (
-                <p className="text-red-500 text-sm mt-1">{errors.innerrorYtterDiameter}</p>
               )}
             </div>
           </div>
