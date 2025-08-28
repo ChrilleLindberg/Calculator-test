@@ -598,6 +598,53 @@ const RorstodCalculator = () => {
 
           {results && results.length > 0 && (
             <div className="space-y-4">
+              {/* Sammanfattning / Rekommendation - nu överst */}
+              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <h3 className="font-semibold text-blue-900 mb-2">Rekommendation</h3>
+                {(() => {
+                  const optimalResults = results.filter(r => r.optimal && r.products.length > 0);
+                  if (optimalResults.length > 0) {
+                    const best = optimalResults[0];
+                    const bestProduct = findOptimalHeight(best.products, best.maxHojd);
+                    return (
+                      <div>
+                        <p className="text-blue-800 mb-2">
+                          <strong>{best.kategori}</strong> med <strong>{best.antalRorstod} st</strong> rörstöd
+                        </p>
+                        {bestProduct && (
+                          <p className="text-sm text-blue-700">
+                            Rekommenderad produkt: <strong>{bestProduct.artNr}</strong> (H: {bestProduct.hojd}mm)
+                          </p>
+                        )}
+                      </div>
+                    );
+                  } else {
+                    const anyAvailable = results.find(r => r.products.length > 0);
+                    if (anyAvailable) {
+                      const product = findOptimalHeight(anyAvailable.products, anyAvailable.maxHojd);
+                      return (
+                        <div>
+                          <p className="text-blue-800 mb-2">
+                            <strong>{anyAvailable.kategori}</strong> med <strong>{anyAvailable.antalRorstod} st</strong> rörstöd
+                          </p>
+                          {product && (
+                            <p className="text-sm text-blue-700">
+                              Tillgänglig produkt: <strong>{product.artNr}</strong> (H: {product.hojd}mm)
+                            </p>
+                          )}
+                        </div>
+                      );
+                    } else {
+                      return (
+                        <p className="text-red-600">
+                          Inga produkter fungerar med den beräknade klackhöjden. Kontrollera dimensionerna.
+                        </p>
+                      );
+                    }
+                  }
+                })()}
+              </div>
+
               {results.map((result, index) => {
                 const optimalProduct = findOptimalHeight(result.products, result.maxHojd);
                 const resultKey = `${result.kategori}-${result.antalSegment}`;
@@ -692,53 +739,6 @@ const RorstodCalculator = () => {
                   </div>
                 );
               })}
-
-              {/* Sammanfattning */}
-              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <h3 className="font-semibold text-blue-900 mb-2">Rekommendation</h3>
-                {(() => {
-                  const optimalResults = results.filter(r => r.optimal && r.products.length > 0);
-                  if (optimalResults.length > 0) {
-                    const best = optimalResults[0];
-                    const bestProduct = findOptimalHeight(best.products, best.maxHojd);
-                    return (
-                      <div>
-                        <p className="text-blue-800 mb-2">
-                          <strong>{best.kategori}</strong> med <strong>{best.antalRorstod} st</strong> rörstöd
-                        </p>
-                        {bestProduct && (
-                          <p className="text-sm text-blue-700">
-                            Rekommenderad produkt: <strong>{bestProduct.artNr}</strong> (H: {bestProduct.hojd}mm)
-                          </p>
-                        )}
-                      </div>
-                    );
-                  } else {
-                    const anyAvailable = results.find(r => r.products.length > 0);
-                    if (anyAvailable) {
-                      const product = findOptimalHeight(anyAvailable.products, anyAvailable.maxHojd);
-                      return (
-                        <div>
-                          <p className="text-blue-800 mb-2">
-                            <strong>{anyAvailable.kategori}</strong> med <strong>{anyAvailable.antalRorstod} st</strong> rörstöd
-                          </p>
-                          {product && (
-                            <p className="text-sm text-blue-700">
-                              Tillgänglig produkt: <strong>{product.artNr}</strong> (H: {product.hojd}mm)
-                            </p>
-                          )}
-                        </div>
-                      );
-                    } else {
-                      return (
-                        <p className="text-red-600">
-                          Inga produkter fungerar med den beräknade klackhöjden. Kontrollera dimensionerna.
-                        </p>
-                      );
-                    }
-                  }
-                })()}
-              </div>
             </div>
           )}
         </div>
